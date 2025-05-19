@@ -1,0 +1,1 @@
+# DTEAM-django-prectical-test
