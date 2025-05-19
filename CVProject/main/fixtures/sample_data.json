@@ -1,0 +1,66 @@
+[
+  {
+    "model": "main.skill",
+    "pk": 1,
+    "fields": {
+      "name": "Python"
+    }
+  },
+  {
+    "model": "main.skill",
+    "pk": 2,
+    "fields": {
+      "name": "Django"
+    }
+  },
+  {
+    "model": "main.skill",
+    "pk": 3,
+    "fields": {
+      "name": "JavaScript"
+    }
+  },
+  {
+    "model": "main.skill",
+    "pk": 4,
+    "fields": {
+      "name": "REST APIs"
+    }
+  },
+  {
+    "model": "main.cv",
+    "pk": 1,
+    "fields": {
+      "firstname": "John",
+      "lastname": "Doe",
+      "skills": [1, 2, 4],
+      "bio": "A highly motivated and experienced software developer.",
+      "contacts": {
+        "email": "john.doe@example.com",
+        "phone": "555-0101",
+        "linkedin": "https://www.linkedin.com/in/johndoeexample",
+        "github": "https://github.com/johndoeexample"
+      }
+    }
+  },
+  {
+    "model": "main.project",
+    "pk": 1,
+    "fields": {
+      "cv": 1,
+      "name": "Portfolio Website",
+      "description": "Developed a personal portfolio website to showcase projects and skills.",
+      "link": "http://john-doe-portfolio.example.com"
+    }
+  },
+  {
+    "model": "main.project",
+    "pk": 2,
+    "fields": {
+      "cv": 1,
+      "name": "Task Management API",
+      "description": "Designed and implemented a RESTful API for managing tasks.",
+      "link": null
+    }
+  }
+]

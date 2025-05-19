@@ -176,3 +176,21 @@ Poetry is used for dependency management and packaging. Follow these steps to in
    poetry install --no-root
    ```
    This creates a virtual environment and installs all required packages as specified in `pyproject.toml`.
+
+
+## Loading Fixture Data
+
+To load the sample data into your database, ensure you have run migrations first:
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+Then, use the `loaddata` command:
+
+```bash
+python manage.py loaddata sample_data.json
+```
+
+This will populate your database with the sample CV, skills, and projects defined in `CVProject/main/fixtures/sample_data.json`.
