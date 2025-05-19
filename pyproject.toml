@@ -8,9 +8,16 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "django (>=5.2.1,<6.0.0)",
+    "dotenv (>=0.9.9,<0.10.0)"
 ]
 
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.5"
+pytest-django = "^4.11.1"
+

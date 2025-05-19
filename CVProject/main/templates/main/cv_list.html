@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV List</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 20px;
+            background-color: #f8f9fa;
+        }
+        .cv-card {
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform .2s;
+        }
+        .cv-card:hover {
+            transform: scale(1.02);
+        }
+        .cv-card-header {
+            background-color: #007bff;
+            color: white;
+        }
+        .skills-list .badge, .projects-list .badge {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .contacts-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .contacts-list li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4 text-center">CV List</h1>
+
+        {% if cvs %}
+            <div class="row">
+                {% for cv in cvs %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card cv-card">
+                        <div class="card-header cv-card-header">
+                            <h5 class="card-title mb-0">
+                                {{ cv.firstname }} {{ cv.lastname }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if cv.bio %}
+                                <p class="card-text">
+                                    <strong>Bio:</strong>
+                                    {{ cv.bio|truncatewords:30 }}
+                                </p>
+                            {% endif %}
+
+                            {% if cv.skills.all %}
+                                <div class="skills-list mb-3">
+                                    <strong>Skills:</strong>
+                                    {% for skill in cv.skills.all %}
+                                        <span class="badge bg-primary">
+                                            {{ skill.name }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            {% if cv.projects.all %}
+                                <div class="projects-list mb-3">
+                                    <strong>Projects:</strong>
+                                    {% for project in cv.projects.all %}
+                                        <div>
+                                            <h6 class="mb-0">
+                                                {{ project.name }}
+                                            </h6>
+                                            {% if project.description %}
+                                                <small class="text-muted">
+                                                    {{ project.description|truncatewords:15 }}
+                                                </small>
+                                            {% endif %}
+                                            {% if project.link %}
+                                                <a
+                                                    href="{{ project.link }}"
+                                                    target="_blank"
+                                                    class="badge bg-secondary text-decoration-none"
+                                                >
+                                                    Link
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            {% if cv.contacts %}
+                                <div class="contacts-section">
+                                    <strong>Contacts:</strong>
+                                    <ul class="contacts-list mt-2">
+                                        {% for key, value in cv.contacts.items %}
+                                            <li>
+                                                {% if key == 'linkedin' or key == 'github' %}
+                                                    <a
+                                                        href="{{ value }}"
+                                                        target="_blank"
+                                                    >
+                                                        {{ key|capfirst }}
+                                                    </a>
+                                                {% else %}
+                                                    <strong>
+                                                        {{ key|capfirst }}:
+                                                    </strong> {{ value }}
+                                                {% endif %}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                            <a
+                                href="{% url 'main:cv_detail' cv_id=cv.id %}"
+                                class="btn btn-sm btn-outline-primary mt-3"
+                            >
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-center">No CVs found.</p>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -176,3 +176,46 @@ Poetry is used for dependency management and packaging. Follow these steps to in
    poetry install --no-root
    ```
    This creates a virtual environment and installs all required packages as specified in `pyproject.toml`.
+
+
+## Loading Fixture Data
+
+To load the sample data into your database, ensure you have run migrations first:
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+Then, use the `loaddata` command:
+
+```bash
+python manage.py loaddata sample_data.json
+```
+
+This will populate your database with the sample CV, skills, and projects defined in `CVProject/main/fixtures/sample_data.json`.
+
+
+## Running Tests
+
+This project uses `pytest` for running automated tests.
+
+**Running all tests:**
+
+To run all tests, navigate to the project root directory (where `manage.py` and `pytest.ini` are located) and run:
+
+```bash
+pytest
+```
+
+Or, more verbosely:
+```bash
+pytest -v
+```
+
+**Running tests for a specific app or file:**
+
+You can specify the path to the tests:
+```bash
+pytest main/tests.py
+```
