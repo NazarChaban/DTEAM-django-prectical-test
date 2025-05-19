@@ -1,4 +1,4 @@
-from .models import CV, Project, Skill
+from main.models import CV, Project, Skill
 from django.contrib import admin
 
 admin.site.register(Project)
