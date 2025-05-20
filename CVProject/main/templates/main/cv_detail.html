@@ -58,6 +58,13 @@
         >
             &laquo; Back to CV List
         </a>
+        <a
+            href="{% url 'main:cv_pdf' cv_id=cv.id %}"
+            class="btn btn-success back-link"
+            style="margin-left: 10px;"
+        >
+            Download PDF
+        </a>
 
         <div class="cv-container">
             <div class="text-center mb-4">
