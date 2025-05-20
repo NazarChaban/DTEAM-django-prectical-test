@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ cv.firstname }} {{ cv.lastname }} - CV</title>
+    <style>
+        @page {
+            size: a4 portrait;
+            margin: 1.5cm;
+        }
+        body {
+            font-family: "Helvetica", "Arial", sans-serif;
+            font-size: 10pt;
+            line-height: 1.4;
+            color: #333;
+        }
+        h1, h2, h3, h4 {
+            font-family: "Helvetica", "Arial", sans-serif;
+            color: #111;
+            margin-bottom: 0.5em;
+        }
+        h1 {
+            font-size: 24pt;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-size: 16pt;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+            margin-top: 20px;
+            color: #007BFF;
+        }
+        h3 {
+            font-size: 12pt;
+            margin-top: 15px;
+        }
+        p {
+            margin-bottom: 10px;
+        }
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+            padding-left: 0;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .skills-list .skill-badge {
+            display: inline-block;
+            padding: 0.35em 0.65em;
+            font-size: 0.9em;
+            font-weight: 700;
+            line-height: 1;
+            color: #fff;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.375rem;
+            background-color: #007bff;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .project {
+            margin-bottom: 15px;
+            padding-left: 10px;
+            border-left: 2px solid #eee;
+        }
+        .project-name {
+            font-weight: bold;
+            font-size: 11pt;
+        }
+        .contacts-list strong {
+            display: inline-block;
+            width: 80px;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ cv.firstname }} {{ cv.lastname }}</h1>
+
+    {% if cv.bio %}
+    <div class="section">
+        <h2>Bio</h2>
+        <p>{{ cv.bio|linebreaksbr }}</p>
+    </div>
+    {% endif %}
+
+    {% if cv.skills.all %}
+    <div class="section">
+        <h2>Skills</h2>
+        <div class="skills-list">
+            {% for skill in cv.skills.all %}
+                <span class="skill-badge">{{ skill.name }}</span> {# Changed span to use skill-badge class #}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if cv.projects.all %}
+    <div class="section">
+        <h2>Projects</h2>
+        {% for project in cv.projects.all %}
+            <div class="project">
+                <p class="project-name">{{ project.name }}</p>
+                {% if project.description %}
+                    <p>{{ project.description|linebreaksbr }}</p>
+                {% endif %}
+                {% if project.link %}
+                            <a
+                                href="{{ project.link }}"
+                                target="_blank"
+                            >
+                                View Project
+                            </a>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if cv.contacts %}
+    <div class="section">
+        <h2>Contacts</h2>
+        <ul class="contacts-list" style="list-style-type: none; padding-left: 0;">
+            {% for key, value in cv.contacts.items %}
+                <li>
+                    {% if key == 'linkedin' or key == 'github' %}
+                        <a
+                            href="{{ value }}"
+                        >
+                            {{ key|capfirst }}
+                        </a>
+                    {% elif key == 'email' %}
+                        <strong>{{ key|capfirst }}:</strong> <a href="mailto:{{ value }}">{{ value }}</a>
+                    {% else %}
+                        <strong>{{ key|capfirst }}:</strong>
+                        {{ value }}
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</body>
+</html>
