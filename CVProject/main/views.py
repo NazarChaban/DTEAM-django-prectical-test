@@ -1,9 +1,21 @@
 from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string
+from main.api.serializers import CVSerializer
 from django.http import HttpResponse
+from rest_framework import viewsets
 from main.models import CV
 from xhtml2pdf import pisa
 from io import BytesIO
+
+
+class CVViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows CVs to be viewed or edited.
+    """
+    queryset = CV.objects.prefetch_related(
+        'skills', 'projects'
+    ).all().order_by('id')
+    serializer_class = CVSerializer
 
 
 def cv_list_view(request):
