@@ -20,3 +20,18 @@ def recent_logs_view(request):
         'logs': logs
     }
     return render(request, 'audit/recent_logs.html', context)
+
+
+def display_settings_view(request):
+    """
+    Handles displaying the site settings.
+    Retrieves the site settings from the Django settings module
+    and renders them using the 'audit/display_settings.html' template.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: The HTTP response rendered with the site settings.
+    """
+    return render(request, 'audit/display_settings.html')
