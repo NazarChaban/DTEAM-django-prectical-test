@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Settings</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        p { margin-bottom: 10px; }
+        strong { color: #555; }
+    </style>
+</head>
+<body>
+    <h1>Current Site Settings</h1>
+
+    <p><strong>DEBUG:</strong> {{ DEBUG }}</p>
+    <p><strong>ALLOWED_HOSTS:</strong>
+        {% if ALLOWED_HOSTS %}
+            <ul>
+                {% for host in ALLOWED_HOSTS %}
+                    <li>{{ host }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            Not specified.
+        {% endif %}
+    </p>
+    <p><strong>LANGUAGE_CODE:</strong> {{ LANGUAGE_CODE }}</p>
+    <p><strong>TIME_ZONE:</strong> {{ TIME_ZONE }}</p>
+
+    <p><a href="{% url 'audit:recent_logs' %}">Back to Recent Logs</a></p>
+</body>
+</html>
