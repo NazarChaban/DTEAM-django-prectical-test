@@ -1,4 +1,9 @@
+from main.services.cv_utils import (
+    generate_cv_pdf_content,
+    serialize_cv_instance,
+)
 from django.shortcuts import render, get_object_or_404, redirect
+from main.services.gemini_translate import translate_text
 from django.template.loader import render_to_string
 from main.api.serializers import CVSerializer
 from main.tasks import send_cv_pdf_email_task
@@ -6,35 +11,6 @@ from django.http import HttpResponse
 from rest_framework import viewsets
 from django.contrib import messages
 from main.models import CV
-from xhtml2pdf import pisa
-from io import BytesIO
-
-
-def _generate_cv_pdf_content(cv_instance):
-    """
-    Generates PDF content for a given CV instance.
-    Returns PDF content as bytes, or None if generation fails.
-    """
-    context = {'cv': cv_instance}
-    html_string = render_to_string('main/cv_detail_pdf.html', context)
-    result_file = BytesIO()
-
-    pdf_status = pisa.CreatePDF(
-        src=html_string.encode('utf-8'),
-        dest=result_file,
-        encoding='utf-8'
-    )
-
-    if not pdf_status.err:
-        pdf_content = result_file.getvalue()
-        result_file.close()
-        return pdf_content
-    else:
-        print(f"Error generating PDF for CV ID {cv_instance.id}. Pisa Error Code: {pdf_status.err}")
-        for message in pdf_status.log:
-            print(f"Pisa Log: Type={message.type}, Level={message.level}, Msg='{message.msg}', File='{message.filename}', Line={message.line}, Col={message.col}")
-        result_file.close()
-        return None
 
 
 class CVViewSet(viewsets.ModelViewSet):
@@ -118,7 +94,7 @@ def cv_pdf_view(request, cv_id):
         pk=cv_id
     )
 
-    pdf_content = _generate_cv_pdf_content(cv)
+    pdf_content = generate_cv_pdf_content(cv)
 
     if pdf_content:
         response = HttpResponse(
@@ -144,7 +120,7 @@ def trigger_send_cv_email_view(request, cv_id):
     if request.method == 'POST':
         recipient_email = request.POST.get('recipient_email')
         if recipient_email:
-            pdf_content = _generate_cv_pdf_content(cv_instance)
+            pdf_content = generate_cv_pdf_content(cv_instance)
 
             if pdf_content:
                 send_cv_pdf_email_task.delay(
@@ -164,3 +140,39 @@ def trigger_send_cv_email_view(request, cv_id):
 
         return redirect('main:cv_detail', cv_id=cv_instance.id)
     return redirect('main:cv_detail', cv_id=cv_instance.id)
+
+
+def translate_cv_view(request, cv_id):
+    if request.method != 'POST':
+        return HttpResponse("Method not allowed", status=405)
+
+    target_language = request.POST.get('language')
+    if not target_language:
+        return HttpResponse("No language selected.", status=400)
+
+    cv_instance = get_object_or_404(
+        CV.objects.prefetch_related('skills', 'projects'),
+        pk=cv_id
+    )
+
+    original_data = serialize_cv_instance(cv_instance)
+
+    translated_data = translate_text(original_data, target_language)
+    if "error" in translated_data:
+        return HttpResponse(translated_data["error"], status=500)
+
+    html = render_to_string(
+        'main/cv_translated_pdf.html', {'cv': translated_data}
+    )
+    pdf_content = generate_cv_pdf_content(html_string=html)
+
+    if pdf_content:
+        filename = (
+            f"{translated_data['firstname']}_{translated_data['lastname']}"
+            f"_{target_language}_CV.pdf"
+        )
+        response = HttpResponse(pdf_content, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+
+    return HttpResponse("Failed to generate PDF.", status=500)

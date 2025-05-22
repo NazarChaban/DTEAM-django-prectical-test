@@ -12,5 +12,11 @@ urlpatterns = [
         views.trigger_send_cv_email_view,
         name='send_cv_email'
     ),
+    path(
+        'cv/<int:cv_id>/translate/',
+        views.translate_cv_view,
+        name='translate_cv'
+    ),
     path('api/', include('main.api.urls')),
+
 ]
