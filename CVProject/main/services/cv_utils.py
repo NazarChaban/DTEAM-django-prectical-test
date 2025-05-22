@@ -29,14 +29,21 @@ def generate_cv_pdf_content(cv_instance=None, html_string=None):
         result_file.close()
         return pdf_content
     else:
-        print(f"Error generating PDF for CV ID {cv_instance.id}. Pisa Error Code: {pdf_status.err}")
+        print(
+            f"Error generating PDF for CV ID {cv_instance.id}. "
+            f"Pisa Error Code: {pdf_status.err}"
+        )
         for message in pdf_status.log:
-            print(f"Pisa Log: Type={message.type}, Level={message.level}, Msg='{message.msg}', File='{message.filename}', Line={message.line}, Col={message.col}")
+            print(
+                f"Pisa Log: Type={message.type}, Level={message.level}, "
+                f"Msg='{message.msg}', File='{message.filename}', Line="
+                f"{message.line}, Col={message.col}"
+            )
         result_file.close()
         return None
 
 
-def serialize_cv_instance(cv :CV):
+def serialize_cv_instance(cv: CV):
     """Returns JSON from a CV instance."""
     data = model_to_dict(
         cv, fields=['firstname', 'lastname', 'bio', 'contacts']
