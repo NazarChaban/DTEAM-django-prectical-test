@@ -1,31 +1,18 @@
 #!/bin/bash
 set -e
 
-# Add PYTHONPATH
-export PYTHONPATH="/app/CVProject"
+SERVICE_TYPE="$1"
 
-# Set DJANGO_SETTINGS_MODULE
-export DJANGO_SETTINGS_MODULE="CVProject.settings"
+echo "Docker entrypoint executing for service type: $SERVICE_TYPE"
 
-# Migrations
-echo "Running migrations"
-python manage.py migrate --noinput
-
-# Create superuser if it doesn't exist and CREATE_SUPERUSER is True
-echo "Checking for existing superuser"
-python ../scripts/create_superuser.py
-
-# Load initial data if LOAD_INITIAL_DATA is True
-if [ "$LOAD_INITIAL_DATA" = "True" ] || [ "$LOAD_INITIAL_DATA" = "true" ]; then
-    echo "Loading initial data"
-    python manage.py loaddata sample_data.json
-fi
-
-# Start debug server if DJANGO_DEBUG is True, otherwise start gunicorn
-if [ "$DJANGO_DEBUG" = "True" ] || [ "$DJANGO_DEBUG" = "true" ]; then
-    echo "Running development server"
-    exec python manage.py runserver 0.0.0.0:8000
+if [ "$SERVICE_TYPE" = "web" ]; then
+    echo "Dispatching to web_setup.sh"
+    exec /app/scripts/web_setup.sh
+elif [ "$SERVICE_TYPE" = "celery_worker" ]; then
+    echo "Dispatching to celery_setup.sh"
+    exec /app/scripts/celery_setup.sh
 else
-    echo "Starting server"
-    exec gunicorn CVProject.wsgi:application --bind 0.0.0.0:8000
+    echo "Unknown service type: $SERVICE_TYPE"
+    echo "Executing command: $@"
+    exec "$@"
 fi

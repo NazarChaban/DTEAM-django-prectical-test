@@ -66,6 +66,42 @@
             Download PDF
         </a>
 
+        <div class="mt-3 mb-3 p-3 border rounded bg-light">
+            <h5>Send CV as PDF to Email</h5>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <form
+                method="post"
+                action="{% url 'main:send_cv_email' cv_id=cv.id %}"
+            >
+                {% csrf_token %}
+                <div class="input-group mb-3">
+                    <input
+                        type="email"
+                        name="recipient_email"
+                        class="form-control"
+                        placeholder="Enter recipient's email"
+                        aria-label="Recipient's email"
+                        required
+                    >
+                    <button class="btn btn-primary" type="submit">
+                        Send PDF
+                    </button>
+                </div>
+            </form>
+        </div>
+
         <div class="cv-container">
             <div class="text-center mb-4">
                 <h1>{{ cv.firstname }} {{ cv.lastname }}</h1>
