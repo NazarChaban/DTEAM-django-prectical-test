@@ -13,7 +13,8 @@ class CV(models.Model):
     lastname = models.CharField(max_length=100)
     skills = models.ManyToManyField(Skill, blank=True)
     bio = models.TextField(blank=True)
-    contacts = models.JSONField(blank=True, null=True) # Stores contact information like email, phone, LinkedIn, etc.
+    # Stores contact information like email, phone, LinkedIn, etc.
+    contacts = models.JSONField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.firstname} {self.lastname}"

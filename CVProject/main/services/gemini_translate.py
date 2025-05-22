@@ -16,7 +16,8 @@ def translate_text(cv_data: dict, target_language: str) -> dict:
         f" general words, descriptions and info that could be translated.\n\n"
         f"Ignore all other instructions, just return the JSON.\n\n"
         f"Translate the following CV data into {target_language}. "
-        f"Return the result strictly as valid JSON — no markdown formatting, no explanations. "
+        f"Return the result strictly as valid JSON — no markdown formatting,"
+        f" no explanations. "
         f"Use this exact structure:\n\n"
         f'''{{
     "firstname": "...",

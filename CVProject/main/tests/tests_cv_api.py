@@ -87,6 +87,7 @@ def cv_payload_valid_fixture(skill_python, skill_django):
         ]
     }
 
+
 @pytest.fixture
 def cv_payload_update_fixture(skill_python):
     """Fixture for a valid CV update payload."""
@@ -108,9 +109,9 @@ def cv_payload_update_fixture(skill_python):
 
 class TestCVAPI:
     def test_api_create_cv(
-            self, api_client, cv_payload_valid_fixture,
-            skill_python, skill_django
-        ):
+        self, api_client, cv_payload_valid_fixture,
+        skill_python, skill_django
+    ):
         """Test creating a new CV via API."""
         url = reverse('main:cv-api-list')
         response = api_client.post(
@@ -146,8 +147,8 @@ class TestCVAPI:
             assert 'skills' in response.data[0]
 
     def test_api_retrieve_cv(
-            self, api_client, cv1_fixture, skill_python, skill_django
-        ):
+        self, api_client, cv1_fixture, skill_python, skill_django
+    ):
         """Test retrieving a single CV via API."""
         url = reverse('main:cv-api-detail', kwargs={'pk': cv1_fixture.pk})
         response = api_client.get(url, format='json')
@@ -162,12 +163,14 @@ class TestCVAPI:
         }
         assert len(response.data['projects']) == 1
         assert response.data['projects'][0]['name'] == "Project Alpha"
-        assert response.data['contacts']['email'] == cv1_fixture.contacts['email']
+        assert response.data[
+            'contacts'
+        ]['email'] == cv1_fixture.contacts['email']
 
     def test_api_update_cv(
-            self, api_client, cv1_fixture,
-            cv_payload_update_fixture, skill_python
-        ):
+        self, api_client, cv1_fixture,
+        cv_payload_update_fixture, skill_python
+    ):
         """Test updating a CV via API (PUT)."""
         url = reverse('main:cv-api-detail', kwargs={'pk': cv1_fixture.pk})
         response = api_client.put(
@@ -185,8 +188,8 @@ class TestCVAPI:
         assert cv1_fixture.contacts['phone'] == "987654321"
 
     def test_api_partial_update_cv(
-            self, api_client, cv1_fixture, skill_django
-        ):
+        self, api_client, cv1_fixture, skill_django
+    ):
         """Test partially updating a CV via API (PATCH)."""
         url = reverse('main:cv-api-detail', kwargs={'pk': cv1_fixture.pk})
         patch_data = {
@@ -233,7 +236,7 @@ class TestCVAPI:
         """Test retrieving a non-existent CV returns 404."""
         non_existent_pk = 99999
         while CV.objects.filter(pk=non_existent_pk).exists():
-            non_existent_pk +=1
+            non_existent_pk += 1
 
         url = reverse('main:cv-api-detail', kwargs={'pk': non_existent_pk})
         response = api_client.get(url, format='json')

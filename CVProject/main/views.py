@@ -128,7 +128,10 @@ def trigger_send_cv_email_view(request, cv_id):
                 )
                 messages.success(
                     request,
-                    f"{cv_instance.firstname} {cv_instance.lastname}'s CV was sent to {recipient_email}."
+                    (
+                        f"{cv_instance.firstname} {cv_instance.lastname}'s CV"
+                        f" was sent to {recipient_email}."
+                    )
                 )
             else:
                 messages.error(
