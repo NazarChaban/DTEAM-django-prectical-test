@@ -1,11 +1,40 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from main.api.serializers import CVSerializer
+from main.tasks import send_cv_pdf_email_task
 from django.http import HttpResponse
 from rest_framework import viewsets
+from django.contrib import messages
 from main.models import CV
 from xhtml2pdf import pisa
 from io import BytesIO
+
+
+def _generate_cv_pdf_content(cv_instance):
+    """
+    Generates PDF content for a given CV instance.
+    Returns PDF content as bytes, or None if generation fails.
+    """
+    context = {'cv': cv_instance}
+    html_string = render_to_string('main/cv_detail_pdf.html', context)
+    result_file = BytesIO()
+
+    pdf_status = pisa.CreatePDF(
+        src=html_string.encode('utf-8'),
+        dest=result_file,
+        encoding='utf-8'
+    )
+
+    if not pdf_status.err:
+        pdf_content = result_file.getvalue()
+        result_file.close()
+        return pdf_content
+    else:
+        print(f"Error generating PDF for CV ID {cv_instance.id}. Pisa Error Code: {pdf_status.err}")
+        for message in pdf_status.log:
+            print(f"Pisa Log: Type={message.type}, Level={message.level}, Msg='{message.msg}', File='{message.filename}', Line={message.line}, Col={message.col}")
+        result_file.close()
+        return None
 
 
 class CVViewSet(viewsets.ModelViewSet):
@@ -88,32 +117,50 @@ def cv_pdf_view(request, cv_id):
         CV.objects.prefetch_related('skills', 'projects'),
         pk=cv_id
     )
-    context = {
-        'cv': cv,
-    }
 
-    html_string = render_to_string('main/cv_detail_pdf.html', context)
-    result_file = BytesIO()
+    pdf_content = _generate_cv_pdf_content(cv)
 
-    pdf = pisa.CreatePDF(
-        src=html_string.encode('utf-8'),
-        dest=result_file,
-        encoding='utf-8'
-    )
-
-    if not pdf.err:
+    if pdf_content:
         response = HttpResponse(
-            result_file.getvalue(), content_type='application/pdf'
+            pdf_content, content_type='application/pdf'
         )
         response[
             'Content-Disposition'
         ] = f'attachment; filename="{cv.firstname}_{cv.lastname}_CV.pdf"'
         return response
     else:
-        print(f"Error generating PDF for CV ID {cv_id}. Pisa Error Code: {pdf.err}")
-        for message in pdf.log:
-            print(f"Pisa Log: Type={message.type}, Level={message.level}, Msg='{message.msg}', File='{message.filename}', Line={message.line}, Col={message.col}")
         return HttpResponse(
             "Sorry, there was an error generating the PDF.",
             status=500
         )
+
+
+def trigger_send_cv_email_view(request, cv_id):
+    cv_instance = get_object_or_404(
+        CV.objects.prefetch_related('skills', 'projects'),
+        pk=cv_id
+    )
+
+    if request.method == 'POST':
+        recipient_email = request.POST.get('recipient_email')
+        if recipient_email:
+            pdf_content = _generate_cv_pdf_content(cv_instance)
+
+            if pdf_content:
+                send_cv_pdf_email_task.delay(
+                    cv_instance.id, recipient_email, pdf_content
+                )
+                messages.success(
+                    request,
+                    f"{cv_instance.firstname} {cv_instance.lastname}'s CV was sent to {recipient_email}."
+                )
+            else:
+                messages.error(
+                    request,
+                    "Failed to generate PDF for the CV. Email not sent."
+                )
+        else:
+            messages.error(request, "Please enter recipient email.")
+
+        return redirect('main:cv_detail', cv_id=cv_instance.id)
+    return redirect('main:cv_detail', cv_id=cv_instance.id)
